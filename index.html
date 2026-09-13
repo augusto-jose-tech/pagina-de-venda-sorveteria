@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍦 Sorveteria Demo - Chatbot de Vendas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa8c5 50%, #c44569 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #c44569;
+        }
+
+        .badge-demo {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .info-section h1 {
+            color: #c44569;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .info-section p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 60px rgba(0,0,0,0.2);
+            max-width: 420px;
+            width: 100%;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #c44569, #ff6b9d);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .chat-info h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .chat-info span {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .status-online {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Messages Area */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #c44569, #ff6b9d);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 15px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        /* Buttons */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chat-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .chat-btn:hover {
+            background: #e0e0e0;
+            transform: translateX(5px);
+        }
+
+        .chat-btn.selected {
+            background: linear-gradient(135deg, #c44569, #ff6b9d);
+            color: white;
+        }
+
+        .chat-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Quick Reply */
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-reply {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-reply:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,210,255,0.4);
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: #fff9e6;
+            border: 2px dashed #ffc107;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .order-summary h4 {
+            color: #c44569;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+            padding: 4px 0;
+        }
+
+        .order-total {
+            border-top: 1px solid #ffc107;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 40px rgba(58, 123, 213, 0.4);
+        }
+
+        .cta-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .cta-section p {
+            font-size: 0.9rem;
+            opacity: 0.95;
+            margin-bottom: 15px;
+        }
+
+        .cta-btn {
+            background: white;
+            color: #3a7bd5;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Scrollbar */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .chat-container {
+                height: 550px;
+                border-radius: 16px;
+            }
+
+            .info-section h1 {
+                font-size: 1.3rem;
+            }
+
+            .logo-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="logo-icon">🍦</span>
+            <span class="logo-text">Sorveteria Demo</span>
+        </div>
+        <span class="badge-demo">🚀 Demo ao Vivo</span>
+    </header>
+
+    <main>
+        <div class="info-section">
+            <h1>👆 Veja como funciona!</h1>
+            <p>Este é um exemplo de como o chatbot atende seus clientes no WhatsApp. <strong>Clique nos botões</strong> para ver a automação em ação!</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-avatar">🍦</div>
+                <div class="chat-info">
+                    <h3>Sorveteria Gelado</h3>
+                    <span class="status-online">
+                        <span class="status-dot"></span>
+                        Online agora
+                    </span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here -->
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>💬 Gostou do que viu?</h2>
+            <p>O robô tirou o pedido em segundos! O seu negócio pode vender assim <strong>24 horas por dia</strong>, 7 dias por semana!</p>
+            <button class="cta-btn" onclick="alert('🚀 Em um projeto real, aqui você falaria com um especialista!')">
+                🗣️ Falar com Especialista
+            </button>
+        </div>
+    </main>
+
+    <footer>
+        <p>🍦 Demo de Automação de Vendas para WhatsApp | Desenvolvido para Sorveterias</p>
+    </footer>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        let step = 0;
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + 
+                   now.getMinutes().toString().padStart(2, '0');
+        }
+
+        function addMessage(text, isBot = true, buttons = null, time = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isBot ? 'bot' : 'user'}`;
+            
+            const timeStr = time || getCurrentTime();
+            
+            let content = text;
+            if (buttons) {
+                content += '<div class="button-container">';
+                buttons.forEach(btn => {
+                    content += `<button class="chat-btn" onclick="${btn.action}">${btn.icon} ${btn.text}</button>`;
+                });
+                content += '</div>';
+            }
+            
+            messageDiv.innerHTML = content + `<div class="message-time">${timeStr}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = text + `<div class="message-time">${getCurrentTime()}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing';
+            typingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Fluxo do chatbot
+        async function startDemo() {
+            step = 0;
+            chatMessages.innerHTML = '';
+            
+            // Saudação do Bot
+            showTyping();
+            await sleep(1500);
+            hideTyping();
+            
+            addMessage(`🍦 Olá! Bem-vindo à <strong>Sorveteria Gelado</strong>! 🎉<br><br>Somos a sorveteria mais gelada da região! Como posso te ajudar hoje?`, true, [
+                { text: '📋 Ver Cardápio', icon: '📋', action: "showMenu()" },
+                { text: '🛒 Fazer Pedido', icon: '🛒', action: "startOrder()" },
+                { text: '👤 Falar com Atendente', icon: '👤', action: "talkAttendant()" }
+            ]);
+        }
+
+        // Mostrar Cardápio
+        async function showMenu() {
+            addUserMessage('📋 Ver Cardápio');
+            showTyping();
+            await sleep(1200);
+            hideTyping();
+            
+            addMessage(`🍓 <strong>Nosso Cardápio:</strong><br><br>🍦 <strong>Sorvetes:</strong><br>• Casquinha - R$ 4,50<br>• Sundae - R$ 8,90<br>• Milk Shake - R$ 12,90<br><br>🧁 <strong>Complementos:</strong><br>• Batata Frita - R$ 7,90<br>• Onion Rings - R$ 9,90<br><br>🥤 <strong>Bebidas:</strong><br>• Refri Lata - R$ 3,50<br>• Suco Natural - R$ 5,90<br><br>Quer fazer um pedido? 😊`, true, [
+                { text: '🛒 Sim, quero pedir!', icon: '🛒', action: "startOrder()" }
+            ]);
+        }
+
+        // Falar com Atendente
+        async function talkAttendant() {
+            addUserMessage('👤 Falar com Atendente');
+            showTyping();
+            await sleep(1000);
+            hideTyping();
+            
+            addMessage(`👋 Oi! Um de nossos atendentes vai te atender em instantes!<br><br>⏱️ Tempo médio de espera: <strong>2 minutos</strong><br><br>Enquanto isso, que tal dar uma olhadinha no nosso cardápio? 😉`, true, [
+                { text: '📋 Ver Cardápio', icon: '📋', action: "showMenu()" },
+                { text: '🛒 Fazer Pedido', icon: '🛒', action: "startOrder()" }
+            ]);
+        }
+
+        // Iniciar Pedido
+        async function startOrder() {
+            addUserMessage('🛒 Fazer Pedido');
+            showTyping();
+            await sleep(1200);
+            hideTyping();
+            
+            addMessage(`🛒 <strong>Perfeito!</strong> Vamos fazer seu pedido! 🎉<br><br>Confira nosso <strong>Combo do Dia</strong> especial:<br><br>🍔 <strong>Combo X-Salada</strong><br>🏠 X-Salada + <br>🍟 Batata Frita + <br>🥤 Refrigerante Lata<br><br>💰 <strong>Valor: R$ 22,90</strong><br><br>Deseja esse combo? 😋`, true, [
+                { text: '✅ Sim, quero o Combo!', icon: '✅', action: "confirmCombo()" },
+                { text: '❌ Não, ver outras opções', icon: '❌', action: "showMenu()" }
+            ]);
+        }
+
+        // Confirmar Combo
+        async function confirmCombo() {
+            addUserMessage('✅ Sim, quero o Combo!');
+            showTyping();
+            await sleep(1200);
+            hideTyping();
+            
+            addMessage(`🎉 <strong>Excelente escolha!</strong><br><br>Adicionando ao seu pedido:<br><br>✅ X-Salada<br>✅ Batata Frita<br>✅ Refri Lata<br>─────────────────<br>💰 <strong>Total: R$ 22,90</strong><br><br>Agora, qual a <strong>forma de pagamento</strong>? 💳`, true, [
+                { text: '💳 Cartão', icon: '💳', action: "selectPayment('Cartão')" },
+                { text: '📱 Pix', icon: '📱', action: "selectPayment('Pix')" },
+                { text: '💵 Dinheiro', icon: '💵', action: "selectPayment('Dinheiro')" }
+            ]);
+        }
+
+        // Selecionar Pagamento
+        async function selectPayment(method) {
+            addUserMessage(method === 'Cartão' ? '💳 Cartão' : method === 'Pix' ? '📱 Pix' : '💵 Dinheiro');
+            showTyping();
+            await sleep(1500);
+            hideTyping();
+            
+            let paymentDetails = '';
+            if (method === 'Cartão') {
+                paymentDetails = '💳 <strong>Cartão</strong><br>Estabelecimento配有POS！';
+            } else if (method === 'Pix') {
+                paymentDetails = '📱 <strong>Pix</strong><br>Chave: sorveteria@gelado.com.br';
+            } else {
+                paymentDetails = '💵 <strong>Dinheiro</strong><br>Pagamento na retirada!';
+            }
+            
+            addMessage(`✅ <strong>Pedido Confirmado!</strong> 🎊<br><br>📝 <strong>Resumo do Pedido:</strong><br>─────────────────<br>🍔 X-Salada<br>🍟 Batata Frita<br>🥤 Refri Lata<br>─────────────────<br>💰 <strong>Total: R$ 22,90</strong><br>💳 <strong>Pagamento:</strong> ${method}<br><br>⏰ <strong>Previsão de preparo:</strong> 15 minutos<br<br>🏠 Retire no balcão!<br><br>Obrigado pelo pedido! 🍦✨`, true);
+            
+            showTyping();
+            await sleep(2500);
+            hideTyping();
+            
+            addMessage(`━━━━━━━━━━━━━━━━━━━━━<br><br>💬 <strong>Para o Dono do Negócio:</strong><br><br>👆 Viu como o robô tirou o pedido em <strong>segundos</strong>?<br><br>✅ Sem esperar na linha<br>✅ Sem erro de pedido<br>✅ Cliente atendido 24h<br>✅ Multiple pedidos simultâneos<br><br>🚀 <strong>Quer ter isso no seu negócio?</strong><br><br>👉 Chama no WhatsApp e vamos conversar!`, true, [
+                { text: '💬 Falar com Especialista', icon: '💬', action: "contactExpert()" }
+            ]);
+        }
+
+        // Contatar Especialista
+        function contactExpert() {
+            addUserMessage('💬 Quero falar com especialista!');
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage(`🎉 <strong>Perfeito!</strong><br><br>Nossa equipe está pronta para transformar as vendas da sua sorveteria!<br><br>📱 <strong>Em um projeto real:</strong><br>Você seria direcionado para um especialista que configuraria o chatbot especialmente para o seu negócio! 🍦<br><br>Obrigado por ver nossa demo! 🙏`);
+            }, 1500);
+        }
+
+        // Iniciar demo automaticamente
+        window.onload = function() {
+            setTimeout(startDemo, 500);
+        };
+    </script>
+</body>
+</html>
